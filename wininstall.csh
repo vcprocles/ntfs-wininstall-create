@@ -45,9 +45,6 @@ umount ./wininstall
 echo "all done, cleaning the mess and exiting"
 rm -rf $tempdir
 exit
-error_parameters:
-echo "Incorrect parameters, check the README"
-exit
 device_has_mounted_filesystems:
 echo "Specified device has mounted filesystems, check the parameters, make sure you're specifying the correct device, and unmount all filesystems before retrying"
 exit
