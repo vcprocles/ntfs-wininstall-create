@@ -1,0 +1,8 @@
+label: dos
+unit: sectors
+sector-size: 512
+
+#efi
+start=2048, size=32768, type=ef, bootable
+#installer
+start=34816, size=+, type=7
