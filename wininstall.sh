@@ -6,6 +6,14 @@ image=$1
 device=$2
 image=$(realpath "$image")
 
+#checking if args are set
+set +e
+if [ -z "$image" ] || [ -z "$device" ]; then
+    echo "Usage: $0 <path to windows iso> <target device>"
+    exit
+fi
+set -e
+
 #check for root
 if [ "$(id -u)" -ne 0 ]; then
     echo "This script needs to run as root, as it writes directly to devices"
@@ -37,11 +45,30 @@ echo "Specified device has mounted filesystems, check the parameters, make sure 
 exit
 fi
 
+
 #preparing
 tempdir="/tmp/winusb"
+
+#checking if tempdir exists already
+if [ -d "$tempdir" ]; then
+    echo "temporary directory already exists, checking mounts..."
+    set +e
+    mountcheck=$(mount | grep "$tempdir")
+    set -e
+    if [ -z "$mountcheck" ]; then
+        echo "no mounts found, removing old temp directory"
+    else
+        echo "found mounts in old temp directory, unmounting..."
+        umount $tempdir/isofile
+        umount $tempdir/wininstall
+    fi
+    echo "removing old temp directory"
+    rm -rf "$tempdir"
+fi
+scriptdir=$(dirname "$0")
 mkdir $tempdir
 echo "copying the partitioning script"
-cp "$PWD"/newpart.sfdisk $tempdir/newpart.sfdisk
+cp "$scriptdir"/newpart.sfdisk $tempdir/newpart.sfdisk
 cd $tempdir
 echo "downloading uefi:ntfs image"
 wget -q https://github.com/pbatard/rufus/raw/master/res/uefi/uefi-ntfs.img
